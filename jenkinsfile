@@ -1,0 +1,25 @@
+node('master') 
+{
+   stage('Continuos Download') 
+   {
+      git 'https://github.com/intelliqittrainings/maven.git'
+   }
+   stage('Continuos Build')
+   {
+        sh 'mvn package' 
+   }
+   stage('Continuos Deploy')
+   {
+      deploy adapters: [tomcat9(credentialsId: '218a9c50-ea9e-4eab-95c1-bea5e64501f5', path: '', url: 'http://172.31.63.0:8080')], contextPath: 'Testapp', war: '**/*.war'
+   }
+   stage("Continuos Testing")
+   {
+       git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
+       sh 'java -jar /var/lib/jenkins/workspace/Scriptedpipeline/testing.jar'
+   }
+   stage('Continuos Delivery')
+   {
+       deploy adapters: [tomcat9(credentialsId: '218a9c50-ea9e-4eab-95c1-bea5e64501f5', path: '', url: 'http://172.31.58.113:8080')], contextPath: 'Prodapp', war: '**/*.war'
+   }
+}
+
